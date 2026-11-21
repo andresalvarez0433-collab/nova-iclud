@@ -26,7 +26,11 @@ function injectBetterXcloud() {
   }
 
   betterXcloudInjectionStarted = true;
-  console.info('[NovaCloud] Starting Better xCloud 6.7.13', location.href);
+  // Electron's WebView can be misidentified by Better xCloud as Safari once
+  // document-start has passed. Disable its Safari reload workaround explicitly;
+  // otherwise it intentionally stops the page and throws the diagnostic error.
+  window.BX_FLAGS = Object.assign({}, window.BX_FLAGS || {}, { SafariWorkaround: false });
+  console.info('[NovaCloud] Starting Better xCloud 6.7.13 with SafariWorkaround disabled', location.href);
 
   // Wrap the userscript so synchronous initialization errors are reported with
   // their original message and stack instead of Electron's generic rejection.
