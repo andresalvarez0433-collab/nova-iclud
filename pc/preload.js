@@ -1,2 +1,3 @@
+const path=require('path');
 const {contextBridge,ipcRenderer}=require('electron');
-contextBridge.exposeInMainWorld('nova',{openSupport:()=>ipcRenderer.invoke('open-support'),openBetterXcloud:()=>ipcRenderer.invoke('open-betterxcloud'),openSpotify:()=>ipcRenderer.invoke('open-spotify'),chooseWallpaper:()=>ipcRenderer.invoke('choose-wallpaper')});
+contextBridge.exposeInMainWorld('nova',{openSupport:()=>ipcRenderer.invoke('open-support'),openBetterXcloud:()=>ipcRenderer.invoke('open-betterxcloud'),openSpotify:()=>ipcRenderer.invoke('open-spotify'),chooseWallpaper:()=>ipcRenderer.invoke('choose-wallpaper'),getXcloudPreloadPath:()=>path.join(__dirname,'xcloud-preload.js')});
