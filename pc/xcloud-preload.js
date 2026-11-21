@@ -30,12 +30,10 @@ function injectBetterXcloud() {
 
   // Wrap the userscript so synchronous initialization errors are reported with
   // their original message and stack instead of Electron's generic rejection.
-  const wrappedSource = '(function(){\\ntry {\\n' +
+  const wrappedSource = '(function(){try{' +
     BETTER_XCLOUD_SOURCE +
-    '\\n} catch (error) {\\n' +
-    'console.error("[NovaCloud] Better xCloud runtime exception:", error && (error.stack || error.message || error));\\n' +
-    'return { novacloudError: String(error && (error.stack || error.message || error)) };\\n' +
-    '}\\n})()';
+    '}catch(error){console.error("[NovaCloud] Better xCloud runtime exception:", error && (error.stack || error.message || error));' +
+    'return { novacloudError: String(error && (error.stack || error.message || error)) };}})()';
 
   webFrame.executeJavaScript(wrappedSource).then((result) => {
     if (result && result.novacloudError) {
