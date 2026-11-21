@@ -8,7 +8,9 @@ try {
   const isXboxCloudPage = host === 'www.xbox.com' &&
     (pagePath.includes('/play') || pagePath.includes('/auth/msa'));
   if (isXboxCloudPage) {
-    webFrame.executeJavaScript(BETTER_XCLOUD_SOURCE).catch((error) => {
+    webFrame.executeJavaScript(BETTER_XCLOUD_SOURCE).then(() => {
+      console.info('[NovaCloud] Better xCloud injected');
+    }).catch((error) => {
       console.error('[NovaCloud] Better xCloud injection failed:', error);
     });
   }
