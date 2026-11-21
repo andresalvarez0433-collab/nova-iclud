@@ -7,7 +7,7 @@ function createWindow(){
  win.loadFile(path.join(__dirname,'index.html'));
  win.webContents.on('will-attach-webview',(event,webPreferences,params)=>{
   const src=params.src||'';
-  if(src!=='about:blank'&&!trusted(src)){event.preventDefault();return;}
+  if(src && src!=='about:blank'&&!trusted(src)){event.preventDefault();return;}
   webPreferences.preload=path.join(__dirname,'xcloud-preload.js');
   webPreferences.nodeIntegration=false;
   webPreferences.contextIsolation=true;
