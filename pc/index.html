@@ -51,6 +51,7 @@ function ensureXcloud(){
  if(xcloud)return xcloud;
  const w=document.createElement('webview');
  w.setAttribute('partition','persist:novacloud-xcloud');
+ w.setAttribute('src','about:blank');
  w.setAttribute('allowpopups','');
  w.style.cssText='width:100%;height:100%;display:inline-flex;background:#050910';
  attachXcloudEvents(w);
