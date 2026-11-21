@@ -1,2 +1,2 @@
 const {contextBridge,ipcRenderer}=require('electron');
-contextBridge.exposeInMainWorld('nova',{openXbox:()=>ipcRenderer.invoke('open-xbox'),openSupport:()=>ipcRenderer.invoke('open-support')});
+contextBridge.exposeInMainWorld('nova',{openSupport:()=>ipcRenderer.invoke('open-support'),openBetterXcloud:()=>ipcRenderer.invoke('open-betterxcloud')});
