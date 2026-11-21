@@ -26,49 +26,17 @@ function injectBetterXcloud() {
   }
 
   betterXcloudInjectionStarted = true;
-  // Electron's WebView can be misidentified by Better xCloud as Safari once
-  // document-start has passed. Disable its Safari reload workaround explicitly;
-  // otherwise it intentionally stops the page and throws the diagnostic error.
-  // Configure flags in the page world immediately before the official script reads them.
-  window.BX_FLAGS = Object.assign({}, window.BX_FLAGS || {}, {
-    Debug: true,
-    SafariWorkaround: false
-  });
-
-  // Capture asynchronous failures too; the userscript can initialize callbacks after injection.
-  if (!window.__NOVA_BX_DIAGNOSTICS__) {
-    window.__NOVA_BX_DIAGNOSTICS__ = true;
-    window.addEventListener('error', (event) => {
-      console.error('[NovaCloud][Better xCloud] Window error:', event.message || event.error || 'unknown');
-    });
-    window.addEventListener('unhandledrejection', (event) => {
-      console.error('[NovaCloud][Better xCloud] Unhandled rejection:', event.reason && (event.reason.stack || event.reason.message) || event.reason || 'unknown');
-    });
-    const reportMenu = () => {
-      const nodes = document.querySelectorAll('[class*="bx-"], [id*="bx-"]');
-      const found = Array.from(nodes).slice(0, 12).map(node => node.id || String(node.className).slice(0, 100));
-      console.info('[NovaCloud][Better xCloud] UI probe:', JSON.stringify({
-        url: location.href,
-        readyState: document.readyState,
-        bxElements: nodes.length,
-        samples: found
-      }));
-    };
-    const observer = new MutationObserver(() => {
-      if (document.querySelector('[class*="bx-"], [id*="bx-"]')) {
-        observer.disconnect();
-        reportMenu();
-      }
-    });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-    setTimeout(() => { observer.disconnect(); reportMenu(); }, 12000);
-  }
-
-  console.info('[NovaCloud] Starting Better xCloud 6.7.13 with Debug enabled and SafariWorkaround disabled', location.href);
-
   // Wrap the userscript so synchronous initialization errors are reported with
   // their original message and stack instead of Electron's generic rejection.
   const wrappedSource = '(function(){try{' +
+    'window.BX_FLAGS=Object.assign({},window.BX_FLAGS||{},{Debug:true,SafariWorkaround:false});' +
+    'if(!window.__NOVA_BX_DIAGNOSTICS__){window.__NOVA_BX_DIAGNOSTICS__=true;' +
+    'window.addEventListener("error",function(e){console.error("[NovaCloud][Better xCloud] Window error:",e.message||e.error||"unknown");});' +
+    'window.addEventListener("unhandledrejection",function(e){console.error("[NovaCloud][Better xCloud] Unhandled rejection:",e.reason&&(e.reason.stack||e.reason.message)||e.reason||"unknown");});' +
+    'var novaReport=function(){var n=document.querySelectorAll("[class*=bx-],[id*=bx-]");var s=Array.from(n).slice(0,12).map(function(x){return x.id||String(x.className).slice(0,100);});console.info("[NovaCloud][Better xCloud] UI probe:",JSON.stringify({url:location.href,readyState:document.readyState,bxElements:n.length,samples:s}));};' +
+    'var novaObserver=new MutationObserver(function(){if(document.querySelector("[class*=bx-],[id*=bx-]")){novaObserver.disconnect();novaReport();}});' +
+    'novaObserver.observe(document.documentElement,{childList:true,subtree:true});setTimeout(function(){novaObserver.disconnect();novaReport();},12000);}' +
+    'console.info("[NovaCloud][Better xCloud] Main-world bootstrap active",location.href);' +
     BETTER_XCLOUD_SOURCE +
     '}catch(error){console.error("[NovaCloud] Better xCloud runtime exception:", error && (error.stack || error.message || error));' +
     'return { novacloudError: String(error && (error.stack || error.message || error)) };}})()';
