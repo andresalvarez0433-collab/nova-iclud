@@ -30,6 +30,9 @@ function injectBetterXcloud() {
   // their original message and stack instead of Electron's generic rejection.
   const wrappedSource = '(function(){try{' +
     'window.BX_FLAGS=Object.assign({},window.BX_FLAGS||{},{Debug:true,SafariWorkaround:false});' +
+    // Enable Better xCloud's official Brazil fallback only when no user choice exists.
+    'var novaBxPrefs={};try{novaBxPrefs=JSON.parse(localStorage.getItem("BetterXcloud")||"{}");}catch(e){};' +
+    'if(!Object.prototype.hasOwnProperty.call(novaBxPrefs,"server.bypassRestriction")){novaBxPrefs["server.bypassRestriction"]="br";localStorage.setItem("BetterXcloud",JSON.stringify(novaBxPrefs));console.info("[NovaCloud] First-run region fallback set to Brazil.");}' +
     'if(!window.__NOVA_BX_DIAGNOSTICS__){window.__NOVA_BX_DIAGNOSTICS__=true;' +
     'window.addEventListener("error",function(e){console.error("[NovaCloud][Better xCloud] Window error:",e.message||e.error||"unknown");});' +
     'window.addEventListener("unhandledrejection",function(e){console.error("[NovaCloud][Better xCloud] Unhandled rejection:",e.reason&&(e.reason.stack||e.reason.message)||e.reason||"unknown");});' +
