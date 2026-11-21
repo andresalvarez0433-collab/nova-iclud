@@ -5,7 +5,7 @@ let crashLogPath = null;
 let quitting = false;
 let recoveryAttempts = 0;
 function writeLog(label, details) {
-  const line = `[${new Date().toISOString()}] ${label} ${details ? JSON.stringify(details) : ''}\\n`;
+  const line = `[${new Date().toISOString()}] ${label} ${details ? JSON.stringify(details) : ''}\n`;
   try { if (crashLogPath) fs.appendFileSync(crashLogPath, line, 'utf8'); else console.error(line); }
   catch (error) { console.error('[NovaCloud] Could not write crash log:', error); }
 }
