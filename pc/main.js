@@ -13,3 +13,4 @@ app.on('web-contents-created',(_e,contents)=>{
 app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit();});
 ipcMain.handle('open-support',()=>shell.openExternal('https://support.xbox.com/help/games-apps/cloud-gaming/setup-cloud-gaming'));
 ipcMain.handle('open-betterxcloud',()=>shell.openExternal('https://better-xcloud.github.io/'));
+ipcMain.handle('open-spotify',async()=>{try{return await shell.openExternal('spotify:');}catch(error){return shell.openExternal('https://open.spotify.com/');}});
