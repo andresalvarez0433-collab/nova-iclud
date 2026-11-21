@@ -51,15 +51,18 @@ function ensureXcloud(){
  if(xcloud)return xcloud;
  const w=document.createElement('webview');
  w.setAttribute('partition','persist:novacloud-xcloud');
- w.setAttribute('src','about:blank');
+ // Attach the trusted preload to the real Xbox URL from the first navigation.
+ // Starting at about:blank can initialize the preload on the wrong origin.
+ w.setAttribute('src','https://www.xbox.com/play');
  w.setAttribute('allowpopups','');
  w.style.cssText='width:100%;height:100%;display:inline-flex;background:#050910';
  attachXcloudEvents(w);
  $('xcloudHost').appendChild(w);
  xcloud=w;
+ started=true;
  return w;
 }
-function launch(){const w=ensureXcloud();$('welcome').classList.add('hidden');$('state').textContent='● Cargando Xbox';$('xstatus').textContent='Cargando xbox.com/play';log('Iniciando Xbox Cloud con Better xCloud integrado en document-start.');try{if(started&&w.reload){w.reload();}else{w.setAttribute('src','https://www.xbox.com/play');started=true;}}catch(err){log('No se pudo iniciar el navegador integrado: '+err.message);$('welcome').classList.remove('hidden');$('welcome').querySelector('p').textContent='No se pudo iniciar la ventana integrada: '+err.message;}}
+function launch(){const isNew=!xcloud;const w=ensureXcloud();$('welcome').classList.add('hidden');$('state').textContent='● Cargando Xbox';$('xstatus').textContent='Cargando xbox.com/play';log('Iniciando Xbox Cloud con Better xCloud integrado en document-start.');try{if(!isNew&&w.reload){w.reload();}}catch(err){log('No se pudo iniciar el navegador integrado: '+err.message);$('welcome').classList.remove('hidden');$('welcome').querySelector('p').textContent='No se pudo iniciar la ventana integrada: '+err.message;}}
 $('launch').onclick=launch;$('start').onclick=launch;$('back').onclick=()=>{try{xcloud&&xcloud.goBack()}catch{}};$('forward').onclick=()=>{try{xcloud&&xcloud.goForward()}catch{}};$('reload').onclick=()=>{try{xcloud&&xcloud.reload()}catch{}};
 
 $('support').onclick=()=>window.nova.openSupport();$('spotify').onclick=async()=>{log('Abriendo Spotify.');try{await window.nova.openSpotify();}catch(e){log('No se pudo abrir Spotify: '+e.message);}};$('themeSelect').onchange=()=>{localStorage.setItem('nova-theme',$('themeSelect').value);applyTheme();$('customStatus').textContent='Tema guardado.';};document.querySelectorAll('[data-accent]').forEach(b=>b.onclick=()=>{localStorage.setItem('nova-accent',b.dataset.accent);applyTheme();$('customStatus').textContent='Color guardado.';});$('compactToggle').onchange=()=>{localStorage.setItem('nova-compact',$('compactToggle').checked);applyTheme();};applyTheme();
