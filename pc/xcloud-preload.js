@@ -13,14 +13,18 @@ function injectBetterXcloud() {
     (pagePath.includes('/play') || pagePath.includes('/auth/msa'));
   if (!isXboxCloudPage) return;
 
-  // Better xCloud's official userscript expects the document element to exist.
+  // Inject as soon as the parser creates <html>. Waiting for DOMContentLoaded
+  // lets Xbox's own app scripts run first and can make Better xCloud miss login requests.
   if (!document.documentElement) {
     if (!betterXcloudInjectionQueued) {
       betterXcloudInjectionQueued = true;
-      document.addEventListener('DOMContentLoaded', () => {
+      const rootObserver = new MutationObserver(() => {
+        if (!document.documentElement) return;
+        rootObserver.disconnect();
         betterXcloudInjectionQueued = false;
         injectBetterXcloud();
-      }, { once: true });
+      });
+      rootObserver.observe(document, { childList: true });
     }
     return;
   }
@@ -32,7 +36,9 @@ function injectBetterXcloud() {
     'window.BX_FLAGS=Object.assign({},window.BX_FLAGS||{},{Debug:true,SafariWorkaround:false});' +
     // Enable Better xCloud's official Brazil fallback only when no user choice exists.
     'var novaBxPrefs={};try{novaBxPrefs=JSON.parse(localStorage.getItem("BetterXcloud")||"{}");}catch(e){};' +
-    'var novaBxOldBypass=novaBxPrefs["server.bypassRestriction"];if(!Object.prototype.hasOwnProperty.call(novaBxPrefs,"server.bypassRestriction")||novaBxOldBypass==="off"){novaBxPrefs["server.bypassRestriction"]="br";localStorage.setItem("BetterXcloud",JSON.stringify(novaBxPrefs));console.info("[NovaCloud] Region bypass configured:",novaBxOldBypass||"unset","=> br");}else{console.info("[NovaCloud] Existing region bypass preserved:",novaBxOldBypass);}' +
+    'var novaBxOldBypass=novaBxPrefs["server.bypassRestriction"];var novaBxInitDone=localStorage.getItem("NovaCloud.RegionFallbackConfigured")==="1";' +
+    'if(!novaBxInitDone){if(!Object.prototype.hasOwnProperty.call(novaBxPrefs,"server.bypassRestriction")||novaBxOldBypass==="off"){novaBxPrefs["server.bypassRestriction"]="br";localStorage.setItem("BetterXcloud",JSON.stringify(novaBxPrefs));}localStorage.setItem("NovaCloud.RegionFallbackConfigured","1");}' +
+    'console.info("[NovaCloud] Effective Better xCloud region bypass:",novaBxPrefs["server.bypassRestriction"]||"off");' +
     'if(!window.__NOVA_BX_DIAGNOSTICS__){window.__NOVA_BX_DIAGNOSTICS__=true;' +
     'window.addEventListener("error",function(e){console.error("[NovaCloud][Better xCloud] Window error:",e.message||e.error||"unknown");});' +
     'window.addEventListener("unhandledrejection",function(e){console.error("[NovaCloud][Better xCloud] Unhandled rejection:",e.reason&&(e.reason.stack||e.reason.message)||e.reason||"unknown");});' +
