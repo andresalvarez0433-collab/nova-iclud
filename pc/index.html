@@ -36,7 +36,7 @@ $('wallOpacity').oninput=e=>{localStorage.setItem('nova-wall-opacity',e.target.v
 $('wallBlur').oninput=e=>{localStorage.setItem('nova-wall-blur',e.target.value);applyWallpaper();};
 applyWallpaper();
 function log(s){const line='['+new Date().toLocaleTimeString()+'] '+s;logLines.push(line);$('logs').textContent=logLines.slice(-100).join('\n');}
-function view(name){viewIds.forEach(id=>$(id).classList.toggle('hidden',id!==name));document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===name));}
+function view(name){const target=name==='play'?'player':name;viewIds.forEach(id=>$(id).classList.toggle('hidden',id!==target));document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.view===name));}
 document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>view(b.dataset.view));
 function attachXcloudEvents(w){
  w.addEventListener('dom-ready',()=>{log('Motor web integrado listo. Better xCloud se está iniciando.');$('state').textContent='● Xbox listo';});
