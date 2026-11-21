@@ -11,6 +11,9 @@ function createWindow(){
   webPreferences.preload=path.join(__dirname,'xcloud-preload.js');
   webPreferences.nodeIntegration=false;
   webPreferences.contextIsolation=true;
+  // Better xCloud bridge uses Electron webFrame from its trusted preload.
+  // Keep Node disabled in page code and context isolation enabled.
+  webPreferences.sandbox=false;
  });
 }
 app.whenReady().then(()=>{session.fromPartition('persist:novacloud-xcloud');createWindow();app.on('activate',()=>{if(BrowserWindow.getAllWindows().length===0)createWindow();});});
