@@ -4,7 +4,14 @@ const TRUSTED = ['xbox.com','www.xbox.com','play.xbox.com','login.live.com','acc
 function trusted(url){try{const h=new URL(url).hostname;return TRUSTED.some(d=>h===d||h.endsWith('.'+d));}catch{return false;}}
 function createWindow(){
  const win=new BrowserWindow({width:1440,height:900,minWidth:1050,minHeight:680,backgroundColor:'#080d18',webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false,webviewTag:true,sandbox:true}});
- win.loadFile('index.html');
+ win.loadFile(path.join(__dirname,'index.html'));
+ win.webContents.on('will-attach-webview',(event,webPreferences,params)=>{
+  const src=params.src||'';
+  if(src!=='about:blank'&&!trusted(src)){event.preventDefault();return;}
+  webPreferences.preload=path.join(__dirname,'xcloud-preload.js');
+  webPreferences.nodeIntegration=false;
+  webPreferences.contextIsolation=true;
+ });
 }
 app.whenReady().then(()=>{session.fromPartition('persist:novacloud-xcloud');createWindow();app.on('activate',()=>{if(BrowserWindow.getAllWindows().length===0)createWindow();});});
 app.on('web-contents-created',(_e,contents)=>{
