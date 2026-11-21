@@ -29,8 +29,42 @@ function injectBetterXcloud() {
   // Electron's WebView can be misidentified by Better xCloud as Safari once
   // document-start has passed. Disable its Safari reload workaround explicitly;
   // otherwise it intentionally stops the page and throws the diagnostic error.
-  window.BX_FLAGS = Object.assign({}, window.BX_FLAGS || {}, { SafariWorkaround: false });
-  console.info('[NovaCloud] Starting Better xCloud 6.7.13 with SafariWorkaround disabled', location.href);
+  // Configure flags in the page world immediately before the official script reads them.
+  window.BX_FLAGS = Object.assign({}, window.BX_FLAGS || {}, {
+    Debug: true,
+    SafariWorkaround: false
+  });
+
+  // Capture asynchronous failures too; the userscript can initialize callbacks after injection.
+  if (!window.__NOVA_BX_DIAGNOSTICS__) {
+    window.__NOVA_BX_DIAGNOSTICS__ = true;
+    window.addEventListener('error', (event) => {
+      console.error('[NovaCloud][Better xCloud] Window error:', event.message || event.error || 'unknown');
+    });
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('[NovaCloud][Better xCloud] Unhandled rejection:', event.reason && (event.reason.stack || event.reason.message) || event.reason || 'unknown');
+    });
+    const reportMenu = () => {
+      const nodes = document.querySelectorAll('[class*="bx-"], [id*="bx-"]');
+      const found = Array.from(nodes).slice(0, 12).map(node => node.id || String(node.className).slice(0, 100));
+      console.info('[NovaCloud][Better xCloud] UI probe:', JSON.stringify({
+        url: location.href,
+        readyState: document.readyState,
+        bxElements: nodes.length,
+        samples: found
+      }));
+    };
+    const observer = new MutationObserver(() => {
+      if (document.querySelector('[class*="bx-"], [id*="bx-"]')) {
+        observer.disconnect();
+        reportMenu();
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+    setTimeout(() => { observer.disconnect(); reportMenu(); }, 12000);
+  }
+
+  console.info('[NovaCloud] Starting Better xCloud 6.7.13 with Debug enabled and SafariWorkaround disabled', location.href);
 
   // Wrap the userscript so synchronous initialization errors are reported with
   // their original message and stack instead of Electron's generic rejection.
