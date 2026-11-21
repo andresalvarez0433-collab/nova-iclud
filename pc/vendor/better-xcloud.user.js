@@ -17,7 +17,7 @@
 class BxLogger {static info = (tag, ...args) => BX_FLAGS.Debug && BxLogger.log("#008746", tag, ...args);static warning = (tag, ...args) => BX_FLAGS.Debug && BxLogger.log("#c1a404", tag, ...args);static error = (tag, ...args) => BxLogger.log("#c10404", tag, ...args);static log(color, tag, ...args) {console.log("%c[BxC]", `color:${color};font-weight:bold;`, tag, "//", ...args);}}
 window.BxLogger = BxLogger;
 /* ADDITIONAL CODE */
-var DEFAULT_FLAGS = {Debug: !1,CheckForUpdate: !0,EnableXcloudLogging: !1,SafariWorkaround: !0,EnableWebGPURenderer: !1,ForceNativeMkbTitles: [],FeatureGates: null,DeviceInfo: {deviceType: "unknown"}}, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
+var DEFAULT_FLAGS = {Debug: !1,CheckForUpdate: !0,EnableXcloudLogging: !1,SafariWorkaround: !1,EnableWebGPURenderer: !1,ForceNativeMkbTitles: [],FeatureGates: null,DeviceInfo: {deviceType: "unknown"}}, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 try {delete window.BX_FLAGS;} catch (e) {}
 if (!BX_FLAGS.DeviceInfo.userAgent) BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
 BxLogger.info("BxFlags", BX_FLAGS);
