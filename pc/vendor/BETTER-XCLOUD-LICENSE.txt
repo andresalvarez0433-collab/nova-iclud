@@ -25,4 +25,4 @@ SOFTWARE.
 ---
 
 
-Bundled source: redphx/better-xcloud, dist/better-xcloud.user.js. Version: 6.7.14-beta at integration time.
+Bundled source: redphx/better-xcloud, dist/better-xcloud.user.js. Version: 6.7.13 (stable release) at integration time.
